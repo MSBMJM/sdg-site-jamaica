@@ -236,7 +236,8 @@
 
       // Add the year slider.
       this.map.addControl(L.Control.yearSlider({
-        years: this.years,
+        yearStart: this.years[0],
+        yearEnd: this.years[this.years.length - 1],
         yearChangeCallback: function(e) {
           plugin.currentYear = new Date(e.time).getFullYear();
           plugin.updateColors();
@@ -1613,7 +1614,7 @@ var indicatorView = function (model, options) {
   };
 
   var setDataTableWidth = function(table) {
-    table.find('thead th').each(function() {
+    table.find('th').each(function() {
       var textLength = $(this).text().length;
       for(var loop = 0; loop < view_obj._tableColumnDefs.length; loop++) {
         var def = view_obj._tableColumnDefs[loop];
@@ -1632,7 +1633,7 @@ var indicatorView = function (model, options) {
     table.removeAttr('style width');
 
     var totalWidth = 0;
-    table.find('thead th').each(function() {
+    table.find('th').each(function() {
       if($(this).data('width')) {
         totalWidth += $(this).data('width');
       } else {
@@ -1766,12 +1767,7 @@ var indicatorView = function (model, options) {
       table.data.forEach(function (data) {
         var row_html = '<tr>';
         table.headings.forEach(function (heading, index) {
-          // For accessibility set the Year column to a "row" scope th.
-          var isYear = (index == 0 || heading.toLowerCase() == 'year');
-          var isUnits = (heading.toLowerCase() == 'units');
-          var cell_prefix = (isYear) ? '<th scope="row"' : '<td';
-          var cell_suffix = (isYear) ? '</th>' : '</td>';
-          row_html += cell_prefix + (isYear || isUnits ? '' : ' class="table-value"') + '>' + (data[index] ? data[index] : '-') + cell_suffix;
+          row_html += '<td' + (!index || heading.toLowerCase() == 'units' ? '' : ' class="table-value"') + '>' + (data[index] ? data[index] : '-') + '</td>';
         });
         row_html += '</tr>';
         currentTable.find('tbody').append(row_html);
@@ -1857,7 +1853,7 @@ var indicatorSearch = function(inputElement, indicatorDataStore) {
 
     var results = [],
         that = this,
-        searchString = decodeURIComponent(location.search.substring(1)).replace("q=", "");
+        searchString = unescape(location.search.substring(1)).replace("q=", "");
 
     // we got here because of a redirect, so reinstate:
     this.inputElement.val(searchString);
@@ -2265,7 +2261,8 @@ $(function() {
   var defaultOptions = {
     // YearSlider options.
     yearChangeCallback: null,
-    years: [],
+    yearStart: 2000,
+    yearEnd: 2018,
     // TimeDimensionControl options.
     timeSliderDragUpdate: true,
     speedSlider: false,
@@ -2293,11 +2290,9 @@ $(function() {
     options = L.Util.extend(defaultOptions, options);
     // Hardcode the timeDimension to year intervals.
     options.timeDimension = new L.TimeDimension({
-      // We pad our years to at least January 2nd, so that timezone issues don't
-      // cause any problems. This converts the array of years into a comma-
-      // delimited string of YYYY-MM-DD dates.
-      times: options.years.join('-01-02,') + '-01-02',
-      currentTime: new Date(options.years[0] + '-01-02').getTime(),
+      period: 'P1Y',
+      timeInterval: options.yearStart + '-01-02/' + options.yearEnd + '-01-02',
+      currentTime: new Date(options.yearStart + '-01-02').getTime(),
     });
     // Create the player.
     options.player = new L.TimeDimension.Player(options.playerOptions, options.timeDimension);
@@ -2309,22 +2304,3 @@ $(function() {
     return new L.Control.YearSlider(options);
   };
 }());
-function initialiseGoogleAnalytics(){
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-        
-    sendPageviewToGoogleAnalytics();
-}
-
-function sendPageviewToGoogleAnalytics(){
-    ga('create', '', 'auto');
-    // anonymize user IPs (chops off the last IP triplet)
-    ga('set', 'anonymizeIp', true);
-    // forces SSL even if the page were somehow loaded over http://
-    ga('set', 'forceSSL', true);
-    ga('send', 'pageview');
-}
-
-
