@@ -29,6 +29,8 @@ jekyll_get_json:
   - data: schema
     # Replace my-github-org and open-sdg-data-starter as needed.
     json: 'https://MSBMJM.github.io/sdg-data-jamaica/meta/schema.json'
+  - data: reporting
+    json: 'https://MSBMJM.github.io/sdg-data-jamaica/stats/reporting.json'
   - data: translations
     json: 'https://open-sdg.github.io/sdg-translations/translations.json'
 
@@ -112,7 +114,7 @@ plugins:
   - jekyll-open-sdg-plugins
 
 # Tell the Remote Theme plugin to use the Open SDG platform (Jekyll theme).
-remote_theme: open-sdg/open-sdg@0.4.0
+remote_theme: open-sdg/open-sdg@0.5.3
 
 # Apply any custom CSS.
 custom_css:
